@@ -17,6 +17,7 @@ import hashlib
 def conectar_bd():
     return mysql.connector.connect(
         host='localhost',
+        port='3306',
         user='root',
         password='root',
         database='sistema_login'
@@ -30,13 +31,41 @@ def hash_senha(senha):
 #criar funcao para validar o login
 def validar_login():
     usuario = campo_usuario.get() #pega o valor do campo usuario
-    senha = campo_senha.get() #pega o valor do campo senha
+    senha = hash_senha(campo_senha.get()) #pega o valor do campo senha
 
-    #verificar usuario e senha
-    if usuario == 'admin' and senha == '1234':
-        resultado_login.configure(text='Login realizado com sucesso', text_color='green')
+    conn = conectar_bd() #conecta com o banco de dados
+    cursor = conn.cursor() #cria o cursor
+    cursor.execute("SELECT * FROM usuarios WHERE usuario = '{usuario}' AND senha = '{senha}'") #executa a query
+
+    if cursor.fetchone():
+        resultado_login.configure(text='Login realizado com sucesso!', text_color='green')
     else:
-        resultado_login.configure(text='Usuário ou senha inválidos', text_color='red')
+        resultado_login.configure(text='Usuário ou senha inválidos!', text_color='red')
+
+    conn.close() #fecha a conexão
+
+def cadastrar_usuario():
+    usuario = campo_usuario.get()
+    senha = campo_senha.get()
+
+    if not usuario or not senha:
+        messagebox.showerror('Erro', 'Preencha todos os campos!')
+        return
+    
+    senha_criptografada = hash_senha(senha)
+
+    conn = conectar_bd()
+    cursor = conn.cursor()
+
+    try:
+        cursor.execute("INSERT INTO usuarios (usuario, senha) VALUES ('{usuario}', '{senha_criptografada}')")
+        conn.commit()
+        messagebox.showinfo('Sucesso', 'Usuário cadastrado com sucesso!')
+    except mysql.connector.IntegrityError:
+        messagebox.showerror('Erro', 'Usuário já cadastrado!')
+
+    conn.close()
+
 
 #configuração da janela (aparencia)
 ctk.set_appearance_mode('dark')
@@ -63,8 +92,10 @@ label_senha.pack(pady=10) #coloca o código da label na app
 campo_senha = ctk.CTkEntry(app, placeholder_text='Digite sua senha') #cria o campo de entrada
 campo_senha.pack(pady=5) #coloca o código na app
 
-#button
+#buttons - login e cadastro
 ctk.CTkButton(app, text='Login', command=validar_login).pack(pady=10) #cria o botão e coloca o código na app
+ctk.CTkButton(app, text='Cadastrar', command=cadastrar_usuario).pack(pady=10) #cria o botão e coloca o código na app
+
 
 #campo de texto feedback do login
 resultado_login = ctk.CTkLabel(app, text='')
