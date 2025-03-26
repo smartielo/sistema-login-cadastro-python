@@ -17,7 +17,6 @@ import hashlib
 def conectar_bd():
     return mysql.connector.connect(
         host='localhost',
-        port='3306',
         user='root',
         password='root',
         database='sistema_login'
@@ -35,7 +34,7 @@ def validar_login():
 
     conn = conectar_bd() #conecta com o banco de dados
     cursor = conn.cursor() #cria o cursor
-    cursor.execute("SELECT * FROM usuarios WHERE usuario = '{usuario}' AND senha = '{senha}'") #executa a query
+    cursor.execute("SELECT * FROM usuarios WHERE usuario = %s AND senha = %s", (usuario, senha)) #executa a query
 
     if cursor.fetchone():
         resultado_login.configure(text='Login realizado com sucesso!', text_color='green')
@@ -44,6 +43,7 @@ def validar_login():
 
     conn.close() #fecha a conexão
 
+#função para cadastrar o usuário
 def cadastrar_usuario():
     usuario = campo_usuario.get()
     senha = campo_senha.get()
@@ -56,6 +56,13 @@ def cadastrar_usuario():
 
     conn = conectar_bd()
     cursor = conn.cursor()
+
+    #verifica se o usuário já está cadastrado
+    cursor.execute("SELECT * FROM usuarios WHERE usuario = %s", (usuario,))
+    if cursor.fetchone():
+        messagebox.showerror('Erro', 'Usuário já cadastrado!')
+        conn.close()
+        return
 
     try:
         cursor.execute("INSERT INTO usuarios (usuario, senha) VALUES ('{usuario}', '{senha_criptografada}')")
