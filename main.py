@@ -20,10 +20,11 @@ def conectar_bd():
         user='root',
         password='root',
         database='sistema_login'
+)
 
 #função para criptografar a senha
-
-
+def hash_senha(senha):
+    return hashlib.sha256(senha.encode()).hexdigest()
 
 
 #criar funcao para validar o login
