@@ -1,8 +1,32 @@
+#instale o customtkinter com o comando pip install customtkinter
+#instal o mysql-connector-python com o comando pip install mysql-connector-python
+
 #importe o customtkinter
 import customtkinter as ctk
 
-#criar funcao para validar o login
+#importe o mysql.connector
+import mysql.connector
 
+#importe o messagebox(ele cria mensagens de alerta para o usuário)
+from tkinter import messagebox
+
+#importe o hashlib (ele é usado para criptografar a senha)
+import hashlib
+
+#função para conectar com o banco de dados (mysql)
+def conectar_bd():
+    return mysql.connector.connect(
+        host='localhost',
+        user='root',
+        password='root',
+        database='sistema_login'
+
+#função para criptografar a senha
+
+
+
+
+#criar funcao para validar o login
 def validar_login():
     usuario = campo_usuario.get() #pega o valor do campo usuario
     senha = campo_senha.get() #pega o valor do campo senha
@@ -11,7 +35,7 @@ def validar_login():
     if usuario == 'admin' and senha == '1234':
         resultado_login.configure(text='Login realizado com sucesso', text_color='green')
     else:
-        resultado_login.configure(text='Usuário ou senha inválidos', fg='red')
+        resultado_login.configure(text='Usuário ou senha inválidos', text_color='red')
 
 #configuração da janela (aparencia)
 ctk.set_appearance_mode('dark')
