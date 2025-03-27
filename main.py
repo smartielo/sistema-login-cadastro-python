@@ -69,7 +69,7 @@ def cadastrar_usuario():
 
     try:
         print(f"Inserindo usuário: {usuario}, Senha {senha_criptografada}") #debug
-        cursor.execute("INSERT INTO usuarios (usuario, senha) VALUES (%s, %s)" (usuario, senha_criptografada))
+        cursor.execute("INSERT INTO usuarios (usuario, senha) VALUES (%s, %s)", (usuario, senha_criptografada))
         conn.commit()
         messagebox.showinfo('Sucesso', 'Usuário cadastrado com sucesso!')
     except mysql.connector.Error as err:
