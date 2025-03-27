@@ -29,7 +29,7 @@ def hash_senha(senha):
 
 #criar funcao para validar o login
 def validar_login():
-    usuario = campo_usuario.get() #pega o valor do campo usuario
+    usuario = campo_usuario.get().strip() #pega o valor do campo usuario
     senha = hash_senha(campo_senha.get()) #pega o valor do campo senha
 
     conn = conectar_bd() #conecta com o banco de dados
@@ -57,19 +57,24 @@ def cadastrar_usuario():
     conn = conectar_bd()
     cursor = conn.cursor()
 
+    print(f"verificando usuário: {usuario}") #debug
+
     #verifica se o usuário já está cadastrado
     cursor.execute("SELECT * FROM usuarios WHERE usuario = %s", (usuario,))
     if cursor.fetchone():
+        print("Usuário já existe!") #debug
         messagebox.showerror('Erro', 'Usuário já cadastrado!')
         conn.close()
         return
 
     try:
-        cursor.execute("INSERT INTO usuarios (usuario, senha) VALUES ('{usuario}', '{senha_criptografada}')")
+        print(f"Inserindo usuário: {usuario}, Senha {senha_criptografada}") #debug
+        cursor.execute("INSERT INTO usuarios (usuario, senha) VALUES (%s, %s)" (usuario, senha_criptografada))
         conn.commit()
         messagebox.showinfo('Sucesso', 'Usuário cadastrado com sucesso!')
-    except mysql.connector.IntegrityError:
-        messagebox.showerror('Erro', 'Usuário já cadastrado!')
+    except mysql.connector.Error as err:
+        print(f"Erro MySQL: {err}") #debug
+        messagebox.showerror('Erro', 'Usuário já cadastrado!{err}')
 
     conn.close()
 
